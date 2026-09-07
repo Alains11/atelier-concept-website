@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" type="text/css" href="./styles/main.css">
+
+    <!-- Shortcut icon -->
+    <link rel="shortcut icon" type="image/png" href="./images/icon.png">
+    <title>Roper clone</title>
+</head>
+
+<body>
+    <header>
+        <a href="/" class="logo">
+            <span>roper</span>
+        </a>
+        <div class="user-menu">
+            <a href="#" class="menu-item">List your studio</a>
+            <div class="profile-btn">
+                <span>Menu</span>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="search-bar">
+            <div class="search-item" data-field="location">
+                <span>Location</span>
+                <input id="search-location" type="text" value="Anywhere" aria-label="Location" />
+            </div>
+            <div class="search-item" data-field="checkin">
+                <span>Check in</span>
+                <input id="search-checkin" type="date" aria-label="Check in" />
+            </div>
+            <div class="search-item" data-field="checkout">
+                <span>Check out</span>
+                <input id="search-checkout" type="date" aria-label="Check out" />
+            </div>
+            <div class="search-item" data-field="guests">
+                <span>Guests</span>
+                <input id="search-guests" type="number" min="1" value="2" aria-label="Guests" />
+            </div>
+            <button class="search-btn" onclick="performSearch()" aria-label="Search studios">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12.2 5.8C12.2 4.2 10.5 3 8.5 3C6.5 3 4.8 4.2 4.8 5.8C4.8 7.4 6.5 8.6 8.5 8.6C10.5 8.6 12.2 7.4 12.2 5.8Z" fill="white"/>
+                    <path d="M8.5 11C7.1 11 6 10 6 8.6C6 7.2 7.1 6.2 8.5 6.2C9.9 6.2 11 7.2 11 8.6C11 10 9.9 11 8.5 11Z" fill="white"/>
+                </svg>
+            </button>
+        </div>
+    </section>
+
+    <div class="container">
+        <section class="places-section">
+            <h1 class="section-title">Explore places</h1>
+            <div class="places-grid" id="places-container">
+                <!-- Dynamic content will be loaded here -->
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <div class="footer-left">
+            <span>© 2026 Roper, Inc.</span>
+        </div>
+        <div class="footer-right">
+            <a href="#" class="menu-item">Privacy</a>
+            <a href="#" class="menu-item">Terms</a>
+            <a href="#" class="menu-item">Sitemap</a>
+        </div>
+    </footer>
+
+    <script>
+        const searchCriteria = {
+            location: 'Anywhere',
+            checkin: '',
+            checkout: '',
+            guests: '2'
+        };
+
+        function updateSearch(field, value) {
+            const safeValue = value ?? '';
+            searchCriteria[field] = safeValue;
+            const target = document.getElementById(`search-${field}`);
+            if (target) {
+                target.value = field === 'location' && !safeValue ? 'Anywhere' : safeValue;
+            }
+        }
+
+        function syncSearchFields() {
+            updateSearch('location', document.getElementById('search-location').value || 'Anywhere');
+            updateSearch('checkin', document.getElementById('search-checkin').value || '');
+            updateSearch('checkout', document.getElementById('search-checkout').value || '');
+            updateSearch('guests', document.getElementById('search-guests').value || '2');
+        }
+
+        async function performSearch() {
+            syncSearchFields();
+            const container = document.getElementById('places-container');
+            container.innerHTML = '<p>Searching for the perfect studio...</p>';
+
+            try {
+                const url = `/api/all?location=${encodeURIComponent(searchCriteria.location)}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                const places = Object.values(data);
+
+                if (places.length === 0) {
+                    container.innerHTML = '<p>No studios found in that location. Try another!</p>';
+                    return;
+                }
+
+                container.innerHTML = '';
+                places.forEach(place => {
+                    const card = document.createElement('div');
+                    card.className = 'place-card';
+                    const imageUrl = `https://picsum.photos/seed/${place.id}/400/400`;
+                    card.innerHTML = `
+                        <a href="/property.html?id=${place.id}" style="text-decoration: none; color: inherit;">
+                            <img src="${imageUrl}" alt="${place.name}" class="place-image">
+                        </a>
+                        <div class="place-info">
+                            <span class="place-name">${place.name || 'Unnamed Place'}</span>
+                            <span class="place-rating">★ 4.8</span>
+                        </div>
+                        <div class="place-details">${place.description ? place.description.substring(0, 60) + '...' : 'Beautiful stay in a great location'}</div>
+                        <div class="place-price"><span>$${place.price_by_night || place.price_per_night || '0'}</span> / night</div>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (error) {
+                console.error('Error searching places:', error);
+                container.innerHTML = '<p>Error searching for studios.</p>';
+            }
+        }
+
+        async function loadPlaces() {
+            try {
+                const response = await fetch('/api/all/Place');
+                const data = await response.json();
+                const container = document.getElementById('places-container');
+                const places = Object.values(data);
+
+                if (places.length === 0) {
+                    container.innerHTML = '<p>No places found.</p>';
+                    return;
+                }
+
+                container.innerHTML = '';
+
+                places.forEach(place => {
+                    const card = document.createElement('div');
+                    card.className = 'place-card';
+                    const imageUrl = `https://picsum.photos/seed/${place.id}/400/400`;
+                    card.innerHTML = `
+                        <a href="/property.html?id=${place.id}" style="text-decoration: none; color: inherit;">
+                            <img src="${imageUrl}" alt="${place.name}" class="place-image">
+                        </a>
+                        <div class="place-info">
+                            <span class="place-name">${place.name || 'Unnamed Place'}</span>
+                            <span class="place-rating">★ 4.8</span>
+                        </div>
+                        <div class="place-details">${place.description ? place.description.substring(0, 60) + '...' : 'Beautiful stay in a great location'}</div>
+                        <div class="place-price"><span>$${place.price_by_night || place.price_per_night || '0'}</span> / night</div>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (error) {
+                console.error('Error loading places:', error);
+                document.getElementById('places-container').innerHTML = '<p>Error loading places.</p>';
+            }
+        }
+
+        document.getElementById('search-location').addEventListener('input', (event) => {
+            updateSearch('location', event.target.value || 'Anywhere');
+        });
+        document.getElementById('search-checkin').addEventListener('change', (event) => {
+            updateSearch('checkin', event.target.value);
+        });
+        document.getElementById('search-checkout').addEventListener('change', (event) => {
+            updateSearch('checkout', event.target.value);
+        });
+        document.getElementById('search-guests').addEventListener('input', (event) => {
+            updateSearch('guests', event.target.value);
+        });
+
+        window.onload = loadPlaces;
+    </script>
+</body>
+</html>

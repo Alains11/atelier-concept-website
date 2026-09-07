@@ -9,7 +9,7 @@ import sys
 import unittest
 from unittest.mock import create_autospec, patch
 from io import StringIO
-from console import HBNBCommand
+from console import ConsoleCommand
 from models import storage
 from models.base_model import BaseModel
 from models.user import User
@@ -47,7 +47,7 @@ class TestConsole(unittest.TestCase):
         """
         Redirects stdin and stdout to the mock module
         """
-        return HBNBCommand(stdin=self.mock_stdin, stdout=self.mock_stdout)
+        return ConsoleCommand(stdin=self.mock_stdin, stdout=self.mock_stdout)
 
     def last_write(self, nr=None):
         """Returns last n output lines"""

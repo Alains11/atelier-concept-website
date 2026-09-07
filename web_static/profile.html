@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="./styles/main.css">
+    <link rel="shortcut icon" type="image/png" href="./images/icon.png">
+    <title>Profile - Roper</title>
+    <style>
+        .profile-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .profile-info h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        .profile-info p {
+            color: var(--text-light);
+        }
+        .settings-section {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        .settings-section h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+        .booking-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .booking-card-item {
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 16px;
+            background: #fafafa;
+        }
+        .booking-card-item strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+        .setting-label {
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .setting-value {
+            color: var(--text-light);
+            font-size: 14px;
+        }
+        .edit-btn {
+            background: white;
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .edit-btn:hover {
+            background: #f7f7f7;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <a href="/" class="logo">
+            <span>roper</span>
+        </a>
+        <div class="user-menu">
+            <a href="#" class="menu-item">List your studio</a>
+            <div class="profile-btn">
+                <span>Menu</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="profile-container">
+        <div class="profile-header">
+            <img src="https://picsum.photos/seed/user/200" class="profile-avatar" alt="User Avatar">
+            <div class="profile-info">
+                <h1 id="user-name">Loading user...</h1>
+                <p id="user-email">Loading email...</p>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h2>Personal Information</h2>
+            <div class="setting-item">
+                <span class="setting-label">Full Name</span>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span class="setting-value" id="val-name">-</span>
+                    <button class="edit-btn">Edit</button>
+                </div>
+            </div>
+            <div class="setting-item">
+                <span class="setting-label">Email Address</span>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span class="setting-value" id="val-email">-</span>
+                    <button class="edit-btn">Edit</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h2>Upcoming bookings</h2>
+            <div id="booking-list" class="booking-list">
+                <p>Loading bookings...</p>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h2>Account Settings</h2>
+            <div class="setting-item">
+                <span class="setting-label">Password</span>
+                <button class="edit-btn">Change Password</button>
+            </div>
+            <div class="setting-item">
+                <span class="setting-label">Two-Factor Authentication</span>
+                <span class="setting-value">Disabled</span>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-left">
+            <span>© 2026 Roper, Inc.</span>
+        </div>
+        <div class="footer-right">
+            <a href="#" class="menu-item">Privacy</a>
+            <a href="#" class="menu-item">Terms</a>
+            <a href="#" class="menu-item">Sitemap</a>
+        </div>
+    </footer>
+
+    <script>
+        async function loadProfile() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const userId = urlParams.get('user_id') || localStorage.getItem('roper_user_id') || 'demo-user';
+
+            try {
+                const response = await fetch('/api/all/User');
+                const data = await response.json();
+                const users = Object.values(data);
+                const fallbackUser = users.find(user => user.id === userId) || users[0] || {
+                    name: 'Guest User',
+                    email: 'guest@roper.studio'
+                };
+
+                document.getElementById('user-name').innerText = fallbackUser.name || 'Guest User';
+                document.getElementById('user-email').innerText = fallbackUser.email || 'No email provided';
+                document.getElementById('val-name').innerText = fallbackUser.name || '-';
+                document.getElementById('val-email').innerText = fallbackUser.email || '-';
+
+                const bookingResponse = await fetch(`/api/bookings/${userId}`);
+                const bookingData = await bookingResponse.json();
+                const bookings = Object.values(bookingData);
+                const bookingList = document.getElementById('booking-list');
+
+                if (!bookings.length) {
+                    bookingList.innerHTML = '<p>No upcoming studio bookings yet.</p>';
+                    return;
+                }
+
+                bookingList.innerHTML = bookings.map(booking => `
+                    <div class="booking-card-item">
+                        <strong>Studio ${booking.place_id}</strong>
+                        <div>${booking.check_in} → ${booking.check_out}</div>
+                        <div>${booking.guest_count || 1} guests</div>
+                        <div>Status: ${booking.status || 'confirmed'}</div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                document.getElementById('booking-list').innerHTML = '<p>Unable to load bookings right now.</p>';
+            }
+        }
+        window.onload = loadProfile;
+    </script>
+</body>
+</html>

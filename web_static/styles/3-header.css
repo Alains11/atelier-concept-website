@@ -6,8 +6,7 @@ header {
 }
 
 .logo {
-    background: url("../images/logo.png") no-repeat;
-    background-position: left;
+    background: none;
     display: block;
     height: 100%;
     margin-left: 20px;

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="./styles/main.css">
+    <link rel="shortcut icon" type="image/png" href="./images/icon.png">
+    <title>Create Listing - Roper</title>
+    <style>
+        .form-container {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .form-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: var(--shadow);
+        }
+        .form-card h1 {
+            font-size: 24px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .form-group label {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .form-group input, .form-group textarea {
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        .submit-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 16px;
+        }
+        .submit-btn:hover {
+            filter: brightness(90%);
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <a href="/" class="logo">
+            <span>roper</span>
+        </a>
+        <div class="user-menu">
+            <a href="#" class="menu-item">List your studio</a>
+            <div class="profile-btn">
+                <span>Menu</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="form-container">
+        <div class="form-card">
+            <h1>Create Your Listing</h1>
+            <form id="listing-form">
+                <div class="form-group">
+                    <label for="name">Place Name</label>
+                    <input type="text" id="name" name="name" placeholder="e.g. Cozy Beach House" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" placeholder="Describe your place..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="price">Price per Night ($)</label>
+                    <input type="number" id="price" name="price" placeholder="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="max_guest">Max Guests</label>
+                    <input type="number" id="max_guest" name="max_guest" placeholder="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="rooms">Number of Bedrooms</label>
+                    <input type="number" id="rooms" name="rooms" placeholder="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="bathrooms">Number of Bathrooms</label>
+                    <input type="number" id="bathrooms" name="bathrooms" placeholder="1" required>
+                </div>
+                <button type="submit" class="submit-btn">Publish Listing</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-left">
+            <span>© 2026 Roper, Inc.</span>
+        </div>
+        <div class="footer-right">
+            <a href="#" class="menu-item">Privacy</a>
+            <a href="#" class="menu-item">Terms</a>
+            <a href="#" class="menu-item">Sitemap</a>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('listing-form').onsubmit = async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('name').value,
+                description: document.getElementById('description').value,
+                price_per_night: document.getElementById('price').value,
+                max_guest: document.getElementById('max_guest').value,
+                number_rooms: document.getElementById('rooms').value,
+                number_bathrooms: document.getElementById('bathrooms').value
+            };
+
+            try {
+                // Note: The current backend only has GET /api/all. 
+                // This is a frontend simulation of the POST request.
+                console.log('Submitting listing:', formData);
+                alert('Listing submitted successfully! (Backend POST not yet implemented)');
+                window.location.href = '/';
+            } catch (error) {
+                console.error('Error submitting listing:', error);
+                alert('Error submitting listing.');
+            }
+        };
+    </script>
+</body>
+</html>

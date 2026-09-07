@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="./styles/main.css">
+    <link rel="shortcut icon" type="image/png" href="./images/icon.png">
+    <title>Property Details - Roper</title>
+    <style>
+        .property-detail-container {
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 40px 0;
+        }
+        .gallery {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            grid-template-rows: 200px 200px;
+            gap: 8px;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+        .gallery img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .main-img {
+            grid-row: span 2;
+        }
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 24px;
+        }
+        .detail-title h1 {
+            font-size: 26px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .detail-meta {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .detail-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 80px;
+        }
+        .description-section {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 32px;
+            margin-bottom: 32px;
+        }
+        .description-section h2 {
+            font-size: 22px;
+            margin-bottom: 16px;
+        }
+        .booking-card {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 100px;
+        }
+        .booking-price {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .booking-price span {
+            font-size: 22px;
+            font-weight: 600;
+        }
+        .booking-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .input-group {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 12px;
+            display: block;
+        }
+        .input-group label {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 6px;
+        }
+        .input-group input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            font-size: 14px;
+            color: var(--text-color);
+            outline: none;
+        }
+        .reserve-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 16px;
+        }
+        .booking-status {
+            margin-top: 12px;
+            font-size: 14px;
+            min-height: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <a href="/" class="logo">
+            <span>roper</span>
+        </a>
+        <div class="user-menu">
+            <a href="#" class="menu-item">List your studio</a>
+            <div class="profile-btn">
+                <span>Menu</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="property-detail-container">
+        <div class="gallery">
+            <img src="https://picsum.photos/seed/main/800/600" class="main-img" alt="Main">
+            <img src="https://picsum.photos/seed/1/400/300" alt="Room 1">
+            <img src="https://picsum.photos/seed/2/400/300" alt="Room 2">
+        </div>
+
+        <div class="detail-header">
+            <div class="detail-title">
+                <h1 id="prop-name">Loading property...</h1>
+                <div class="detail-meta">★ 4.8 · 12 reviews · San Francisco, California</div>
+            </div>
+            <div class="share-actions">
+                <a href="#" style="text-decoration: none; color: black; font-size: 14px; font-weight: 600; margin-right: 15px;">♡ Save</a>
+                <a href="#" style="text-decoration: none; color: black; font-size: 14px; font-weight: 600;">↗ Share</a>
+            </div>
+        </div>
+
+        <div class="detail-content">
+            <div class="main-info">
+                <div class="description-section">
+                    <h2>Hosted by Roper Host</h2>
+                    <p id="prop-desc">Loading description...</p>
+                </div>
+                <div class="description-section">
+                    <h2>What this place offers</h2>
+                    <ul style="list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <li>📶 Fast Wi-Fi</li>
+                        <li>🍳 Kitchen</li>
+                        <li>❄️ Air conditioning</li>
+                        <li>🚗 Free parking</li>
+                        <li>🧺 Washer</li>
+                        <li>📺 TV</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="booking-card">
+                <div class="booking-price">
+                    <span>$<span id="prop-price">0</span> <span>night</span></span>
+                </div>
+                <div class="booking-form" id="booking-form">
+                    <div class="input-group">
+                        <label>Check-in</label>
+                        <input id="checkin-input" type="date">
+                    </div>
+                    <div class="input-group">
+                        <label>Check-out</label>
+                        <input id="checkout-input" type="date">
+                    </div>
+                    <div class="input-group">
+                        <label>Guests</label>
+                        <input id="guest-count" type="number" min="1" value="1">
+                    </div>
+                    <button class="reserve-btn" id="reserve-btn" type="button">Reserve</button>
+                    <div id="booking-status" class="booking-status" aria-live="polite"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-left">
+            <span>© 2026 Roper, Inc.</span>
+        </div>
+        <div class="footer-right">
+            <a href="#" class="menu-item">Privacy</a>
+            <a href="#" class="menu-item">Terms</a>
+            <a href="#" class="menu-item">Sitemap</a>
+        </div>
+    </footer>
+
+    <script>
+        async function loadProperty() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const propId = urlParams.get('id');
+            
+            if (!propId) {
+                window.location.href = '/';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/all/Place');
+                const data = await response.json();
+                const place = data[propId];
+
+                if (!place) {
+                    document.getElementById('prop-name').innerText = 'Property not found';
+                    return;
+                }
+
+                document.getElementById('prop-name').innerText = place.name || 'Unnamed Place';
+                document.getElementById('prop-desc').innerText = place.description || 'No description available.';
+                document.getElementById('prop-price').innerText = place.price_by_night || place.price_per_night || '0';
+
+                const reserveButton = document.getElementById('reserve-btn');
+                reserveButton.addEventListener('click', async () => {
+                    const checkIn = document.getElementById('checkin-input').value;
+                    const checkOut = document.getElementById('checkout-input').value;
+                    const guestCount = document.getElementById('guest-count').value;
+                    const statusNode = document.getElementById('booking-status');
+
+                    if (!checkIn || !checkOut) {
+                        statusNode.textContent = 'Please choose both dates.';
+                        statusNode.style.color = '#c92c2c';
+                        return;
+                    }
+
+                    if (new Date(checkOut) <= new Date(checkIn)) {
+                        statusNode.textContent = 'Check-out must be after check-in.';
+                        statusNode.style.color = '#c92c2c';
+                        return;
+                    }
+
+                    const payload = {
+                        user_id: 'demo-user',
+                        place_id: propId,
+                        check_in: checkIn,
+                        check_out: checkOut,
+                        guest_count: Number(guestCount) || 1,
+                    };
+
+                    try {
+                        const bookingResponse = await fetch('/api/bookings', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify(payload)
+                        });
+                        const bookingData = await bookingResponse.json();
+
+                        if (!bookingResponse.ok) {
+                            throw new Error(bookingData.error || 'Booking request failed.');
+                        }
+
+                        statusNode.textContent = `Reservation confirmed for ${checkIn} to ${checkOut}.`;
+                        statusNode.style.color = '#2e8b57';
+                        localStorage.setItem('roper_user_id', 'demo-user');
+                        setTimeout(() => {
+                            window.location.href = '/profile.html?user_id=demo-user';
+                        }, 800);
+                    } catch (error) {
+                        statusNode.textContent = error.message;
+                        statusNode.style.color = '#c92c2c';
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading property:', error);
+            }
+        }
+        window.onload = loadProperty;
+    </script>
+</body>
+</html>

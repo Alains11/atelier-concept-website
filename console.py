@@ -18,12 +18,12 @@ from models.place import Place
 from models.review import Review
 
 
-class HBNBCommand(cmd.Cmd):
+class ConsoleCommand(cmd.Cmd):
     """
     Custom console class
     """
 
-    prompt = '(hbnb) '
+    prompt = '(roper) '
 
     def my_errors(self, line, num_of_args):
         """Displays error messages to user
@@ -276,5 +276,9 @@ class HBNBCommand(cmd.Cmd):
 
 
 if __name__ == '__main__':
+<<<<<<< HEAD
     cli = HBNBCommand()
+=======
+    cli = ConsoleCommand()
+>>>>>>> 3049fcd (Initial commit for Roper studio booking app)
     cli.cmdloop()

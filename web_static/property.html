@@ -119,6 +119,14 @@
             font-size: 14px;
             min-height: 20px;
         }
+        .price-summary {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 18px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+            font-size: 14px;
+        }
     </style>
 </head>
 
@@ -190,6 +198,10 @@
                         <input id="guest-count" type="number" min="1" value="1">
                     </div>
                     <button class="reserve-btn" id="reserve-btn" type="button">Reserve</button>
+                    <div class="price-summary">
+                        <span id="night-summary">Choose dates</span>
+                        <strong id="total-price">$0</strong>
+                    </div>
                     <div id="booking-status" class="booking-status" aria-live="polite"></div>
                 </div>
             </div>
@@ -229,7 +241,36 @@
 
                 document.getElementById('prop-name').innerText = place.name || 'Unnamed Place';
                 document.getElementById('prop-desc').innerText = place.description || 'No description available.';
-                document.getElementById('prop-price').innerText = place.price_by_night || place.price_per_night || '0';
+                const nightlyRate = Number(place.price_by_night || place.price_per_night || 0);
+                const checkInInput = document.getElementById('checkin-input');
+                const checkOutInput = document.getElementById('checkout-input');
+                const guestInput = document.getElementById('guest-count');
+                const today = new Date().toISOString().split('T')[0];
+                checkInInput.min = today;
+                checkOutInput.min = today;
+                guestInput.max = place.max_guest || '';
+                const paramsCheckIn = urlParams.get('check_in');
+                const paramsCheckOut = urlParams.get('check_out');
+                const paramsGuests = urlParams.get('guests');
+                if (paramsCheckIn) checkInInput.value = paramsCheckIn;
+                if (paramsCheckOut) checkOutInput.value = paramsCheckOut;
+                if (paramsGuests) guestInput.value = paramsGuests;
+                document.getElementById('prop-price').innerText = nightlyRate;
+
+                function updatePriceSummary() {
+                    const start = new Date(checkInInput.value);
+                    const end = new Date(checkOutInput.value);
+                    const nights = start && end && end > start ? Math.round((end - start) / 86400000) : 0;
+                    document.getElementById('night-summary').textContent = nights ? `${nights} night${nights === 1 ? '' : 's'}` : 'Choose dates';
+                    document.getElementById('total-price').textContent = `$${(nightlyRate * nights).toFixed(2)}`;
+                }
+                checkInInput.addEventListener('change', () => {
+                    checkOutInput.min = checkInInput.value || today;
+                    updatePriceSummary();
+                });
+                checkOutInput.addEventListener('change', updatePriceSummary);
+                guestInput.addEventListener('input', updatePriceSummary);
+                updatePriceSummary();
 
                 const reserveButton = document.getElementById('reserve-btn');
                 reserveButton.addEventListener('click', async () => {
@@ -250,6 +291,12 @@
                         return;
                     }
 
+                    if (Number(guestCount) < 1 || Number(guestCount) > Number(place.max_guest || Infinity)) {
+                        statusNode.textContent = `This studio accommodates up to ${place.max_guest || 'the listed'} guests.`;
+                        statusNode.style.color = '#c92c2c';
+                        return;
+                    }
+
                     const payload = {
                         user_id: 'demo-user',
                         place_id: propId,
@@ -259,6 +306,8 @@
                     };
 
                     try {
+                        reserveButton.disabled = true;
+                        reserveButton.textContent = 'Reserving...';
                         const bookingResponse = await fetch('/api/bookings', {
                             method: 'POST',
                             headers: {'Content-Type': 'application/json'},
@@ -273,12 +322,15 @@
                         statusNode.textContent = `Reservation confirmed for ${checkIn} to ${checkOut}.`;
                         statusNode.style.color = '#2e8b57';
                         localStorage.setItem('roper_user_id', 'demo-user');
+                        const confirmationUrl = `/confirmation.html?place_id=${encodeURIComponent(propId)}&user_id=${encodeURIComponent('demo-user')}&check_in=${encodeURIComponent(checkIn)}&check_out=${encodeURIComponent(checkOut)}&guest_count=${encodeURIComponent(String(guestCount))}`;
                         setTimeout(() => {
-                            window.location.href = '/profile.html?user_id=demo-user';
+                            window.location.href = confirmationUrl;
                         }, 800);
                     } catch (error) {
                         statusNode.textContent = error.message;
                         statusNode.style.color = '#c92c2c';
+                        reserveButton.disabled = false;
+                        reserveButton.textContent = 'Reserve';
                     }
                 });
             } catch (error) {

@@ -91,11 +91,24 @@ def get_all():
     """Returns all objects from storage"""
     all_objs = models.storage.all()
     location = request.args.get('location', '').strip()
+    guests = request.args.get('guests', '').strip()
     filtered = []
+    try:
+        requested_guests = int(guests) if guests else None
+    except ValueError:
+        return jsonify({"error": "Guests must be a whole number"}), 400
+
     for obj in all_objs.values():
         if obj.__class__.__name__ != 'Place':
             continue
-        if not location or location.lower() == 'anywhere' or location.lower() in (obj.name or '').lower():
+        searchable = ' '.join([
+            str(getattr(obj, 'name', '') or ''),
+            str(getattr(obj, 'description', '') or ''),
+            str(getattr(obj, 'city_id', '') or ''),
+        ]).lower()
+        location_matches = not location or location.lower() == 'anywhere' or location.lower() in searchable
+        capacity_matches = requested_guests is None or requested_guests <= int(getattr(obj, 'max_guest', requested_guests))
+        if location_matches and capacity_matches:
             filtered.append(obj)
 
     data = serialize_objects({obj.id: obj for obj in filtered})
@@ -119,6 +132,25 @@ def get_user_bookings(user_id):
     data = serialize_objects({obj.id: obj for obj in user_bookings})
     return jsonify(data)
 
+
+@app.route('/api/bookings/<booking_id>/cancel', methods=['POST'])
+def cancel_booking(booking_id):
+    """Cancel an existing booking without deleting its history."""
+    booking = next(
+        (obj for obj in models.storage.all().values()
+         if obj.__class__.__name__ == 'Booking' and obj.id == booking_id),
+        None,
+    )
+    if booking is None:
+        return jsonify({"error": "Booking not found"}), 404
+    if booking.status == 'cancelled':
+        return jsonify({"error": "Booking is already cancelled"}), 409
+
+    booking.status = 'cancelled'
+    booking.save()
+    models.storage.save()
+    return jsonify(booking.to_dict())
+
 @app.route('/api/bookings', methods=['POST'])
 def create_booking():
     """Creates a new studio booking"""
@@ -137,15 +169,32 @@ def create_booking():
     if check_out <= check_in:
         return jsonify({"error": "Check-out must be after check-in"}), 400
 
-    guest_count = int(data.get('guest_count', 1))
+    try:
+        guest_count = int(data.get('guest_count', 1))
+    except (TypeError, ValueError):
+        return jsonify({"error": "Guest count must be a whole number"}), 400
     if guest_count < 1:
         return jsonify({"error": "Guest count must be at least 1"}), 400
 
     all_objs = models.storage.all()
     place = next((obj for obj in all_objs.values() if obj.__class__.__name__ == 'Place' and obj.id == data['place_id']), None)
+    if place is None:
+        return jsonify({"error": "Studio not found"}), 404
+
+    max_guests = int(getattr(place, 'max_guest', guest_count))
+    if guest_count > max_guests:
+        return jsonify({"error": f"This studio accommodates up to {max_guests} guests"}), 400
+
+    for existing in all_objs.values():
+        if (existing.__class__.__name__ == 'Booking' and
+                existing.place_id == place.id and
+                existing.status != 'cancelled' and
+                existing.check_in < data['check_out'] and
+                data['check_in'] < existing.check_out):
+            return jsonify({"error": "This studio is already booked for those dates"}), 409
+
     nightly_rate = 0.0
-    if place is not None:
-        nightly_rate = float(getattr(place, 'price_by_night', getattr(place, 'price_per_night', 0.0)))
+    nightly_rate = float(getattr(place, 'price_by_night', getattr(place, 'price_per_night', 0.0)))
 
     nights = max(1, (check_out - check_in).days)
     total_price = nightly_rate * nights

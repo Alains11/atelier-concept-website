@@ -276,9 +276,5 @@ class ConsoleCommand(cmd.Cmd):
 
 
 if __name__ == '__main__':
-<<<<<<< HEAD
-    cli = HBNBCommand()
-=======
     cli = ConsoleCommand()
->>>>>>> 3049fcd (Initial commit for Roper studio booking app)
     cli.cmdloop()

@@ -33,7 +33,7 @@
             color: var(--text-light);
         }
         .settings-section {
-            background: white;
+            background: #111111;
             border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 24px;
@@ -54,11 +54,32 @@
             border: 1px solid var(--border-color);
             border-radius: 10px;
             padding: 16px;
-            background: #fafafa;
+            background: #1b1b1b;
         }
         .booking-card-item strong {
             display: block;
             margin-bottom: 4px;
+        }
+        .booking-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .cancel-btn {
+            border: 1px solid #7d2e3d;
+            color: #ff9bad;
+            background: transparent;
+            border-radius: 7px;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .cancel-btn:disabled {
+            opacity: 0.5;
+            cursor: default;
         }
         .setting-item {
             display: flex;
@@ -79,7 +100,8 @@
             font-size: 14px;
         }
         .edit-btn {
-            background: white;
+            background: #1b1b1b;
+            color: white;
             border: 1px solid var(--border-color);
             padding: 6px 12px;
             border-radius: 8px;
@@ -88,7 +110,7 @@
             font-weight: 600;
         }
         .edit-btn:hover {
-            background: #f7f7f7;
+            background: #292929;
         }
     </style>
 </head>
@@ -183,8 +205,12 @@
                 document.getElementById('val-name').innerText = fallbackUser.name || '-';
                 document.getElementById('val-email').innerText = fallbackUser.email || '-';
 
-                const bookingResponse = await fetch(`/api/bookings/${userId}`);
+                const [bookingResponse, placesResponse] = await Promise.all([
+                    fetch(`/api/bookings/${userId}`),
+                    fetch('/api/all/Place')
+                ]);
                 const bookingData = await bookingResponse.json();
+                const places = await placesResponse.json();
                 const bookings = Object.values(bookingData);
                 const bookingList = document.getElementById('booking-list');
 
@@ -195,12 +221,30 @@
 
                 bookingList.innerHTML = bookings.map(booking => `
                     <div class="booking-card-item">
-                        <strong>Studio ${booking.place_id}</strong>
+                        <strong>${places[booking.place_id]?.name || 'Studio session'}</strong>
                         <div>${booking.check_in} → ${booking.check_out}</div>
                         <div>${booking.guest_count || 1} guests</div>
-                        <div>Status: ${booking.status || 'confirmed'}</div>
+                        <div>Status: ${booking.status || 'confirmed'} · $${Number(booking.total_price || 0).toFixed(2)}</div>
+                        <div class="booking-actions">
+                            <a href="/confirmation.html?place_id=${encodeURIComponent(booking.place_id)}&check_in=${encodeURIComponent(booking.check_in)}&check_out=${encodeURIComponent(booking.check_out)}&guest_count=${encodeURIComponent(booking.guest_count || 1)}">View confirmation</a>
+                            ${booking.status === 'cancelled' ? '<span>Cancelled</span>' : `<button class="cancel-btn" data-booking-id="${booking.id}">Cancel booking</button>`}
+                        </div>
                     </div>
                 `).join('');
+
+                bookingList.querySelectorAll('.cancel-btn').forEach(button => {
+                    button.addEventListener('click', async () => {
+                        if (!window.confirm('Cancel this studio booking?')) return;
+                        button.disabled = true;
+                        const response = await fetch(`/api/bookings/${encodeURIComponent(button.dataset.bookingId)}/cancel`, {method: 'POST'});
+                        if (response.ok) {
+                            loadProfile();
+                        } else {
+                            button.disabled = false;
+                            alert('Unable to cancel this booking.');
+                        }
+                    });
+                });
             } catch (error) {
                 console.error('Error loading profile:', error);
                 document.getElementById('booking-list').innerHTML = '<p>Unable to load bookings right now.</p>';

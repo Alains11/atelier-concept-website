@@ -1,75 +1,134 @@
-# Roper Studio Booking Clone
+# Roper Studio Booking App
 
-## Description of the project
-This project is a custom studio-booking concept app built around the Roper experience: explore studios, review listings, and reserve a session.
+## Version 2.0
 
-The app includes a Flask frontend and API, a custom file-backed storage layer, and a simple booking flow for users.
+Roper is a dark, studio-focused marketplace for discovering creative spaces,
+checking availability, reserving a session, and managing bookings. Version 2.0
+turns the original static clone into a complete Flask-powered booking journey.
 
-### General concepts in review
-- How to create a Python package
-- How to create a command interpreter in Python using the cmd module
-- What is Unit testing and how to implement it in a large project
-- How to serialize and deserialize a Class
-- How to write and read a JSON file
-- How to manage datetime
-- What is an UUID
-- What is *args and how to use it
-- What is **kwargs and how to use it
-- How to handle named arguments in a function
+This release was built and prepared by **Alains11**.
 
-## Files and Directories
-- `models` directory contains the domain models.
-- `tests` contains the project test suite.
-- `console.py` is the local command interpreter entry point.
-- `models/base_model.py` contains the common base model logic.
-- `models/engine` contains the file storage implementation.
+## What Changed In v2.0
 
-## General Execution
-Your shell should work like this in interactive mode:
+### Product and branding
+
+- Rebranded the experience from the original clone identity to Roper.
+- Added a dark visual system across the header, hero, listings, detail pages,
+	profile dashboard, confirmation screen, and footer.
+- Added the studio-control-room hero background and studio marketplace styling.
+- Removed stale legacy branding, external legacy images, and unresolved merge
+	artifacts from the active and archived frontend pages.
+
+### Studio discovery
+
+- Added a live homepage search form for location, check-in, check-out, and
+	guest count.
+- Added location matching across studio names, descriptions, and city IDs.
+- Added guest-capacity filtering before results are displayed.
+- Preserved search dates and guest count when opening a studio detail page.
+- Added responsive listing cards with studio images, descriptions, ratings, and
+	nightly rates.
+
+### Reservation flow
+
+- Added studio detail pages with gallery, description, amenities, and booking
+	form.
+- Added native date selection with minimum-date and check-out constraints.
+- Added guest-count validation against each studio's maximum capacity.
+- Added live night count and total-price calculation.
+- Added server-side validation for date format, date order, guest count, studio
+	existence, and capacity.
+- Added overlap protection so a studio cannot be booked twice for the same
+	dates.
+- Added a dedicated reservation confirmation page.
+
+### Booking management
+
+- Added file-backed Booking persistence through the existing model and storage
+	layer.
+- Added user-specific booking retrieval.
+- Added a profile dashboard with studio names, dates, guest counts, status, and
+	total price.
+- Added confirmation links from the dashboard.
+- Added cancellation support that preserves booking history with a `cancelled`
+	status and releases the dates for future reservations.
+
+### Reliability and maintenance
+
+- Added demo users and studio listings when the store has no places.
+- Added API and booking-flow regression tests.
+- Resolved leftover merge conflicts in the console and README.
+- Kept the console command prompt consistent with the Roper brand.
+
+## Technology
+
+- Python 3
+- Flask
+- Vanilla HTML, CSS, and JavaScript
+- JSON file-backed storage
+- Pytest
+
+## Project Structure
+
+```text
+app.py                         Flask server and JSON API
+console.py                     Local model command interpreter
+models/                        Domain models and file storage engine
+tests/                         Unit and booking-flow tests
+web_static/index.html          Studio discovery homepage
+web_static/property.html       Studio detail and reservation page
+web_static/confirmation.html   Reservation confirmation page
+web_static/profile.html        User booking dashboard
+web_static/styles/main.css     Shared Roper visual system
+file.json                      Local file-backed application data
 ```
-$ ./console.py
-(roper) help
 
-Documented commands (type help <topic>):
-========================================
-EOF  help  quit
-(roper)
-(roper)
-(roper) quit
-$
-But also in non-interactive mode:
+## Run The App
 
-$ echo "help" | ./console.py
-(roper)
+From the repository root:
 
-Documented commands (type help <topic>):
-========================================
-EOF  help  quit
-(roper)
-$
-$ cat test_help
-help
-$
-$ cat test_help | ./console.py
-(roper)
-
-Documented commands (type help <topic>):
-========================================
-EOF  help  quit
-(roper)
-$
+```bash
+python3 app.py 8080
 ```
 
-## Final Product
-This project is designed as a studio-booking landing page and reservation flow for the Roper brand.
-<<<<<<< HEAD
-(hbnb)
-=======
-(roper)
->>>>>>> 3049fcd (Initial commit for Roper studio booking app)
-$
+Open [http://127.0.0.1:8080](http://127.0.0.1:8080) in a browser.
+
+## Run The Tests
+
+```bash
+pytest -q
+python3 -m py_compile app.py console.py models/*.py models/engine/*.py
 ```
-## Final Product
-![alt](https://s3.amazonaws.com/alx-intranet.hbtn.io/uploads/medias/2020/9/fe2e3e7701dec72ce612472dab9bb55fe0e9f6d4.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIARDDGGGOU65GPZGY3%2F20210226%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20210226T091352Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=8ad0ced94d77d100be587f30d4af3734acf12d2b05b803b084cd11ce51bf68f4)
-## Data Diagram
-![alt](https://s3.amazonaws.com/alx-intranet.hbtn.io/uploads/medias/2020/9/99e1a8f2be8c09d5ce5ac321e8cf39f0917f8db5.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIARDDGGGOU65GPZGY3%2F20210226%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20210226T091352Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=a4013a9239416a982d703d1ac725e63a9b35593900d197534d087b71f813441c)
+
+The v2.0 suite covers model behavior, API search filtering, date validation,
+capacity validation, and booking cancellation.
+
+## API Routes
+
+| Method | Route | Purpose |
+| --- | --- | --- |
+| `GET` | `/api/all` | Search studio listings by location and guest count |
+| `GET` | `/api/all/Place` | Return all studios |
+| `GET` | `/api/all/User` | Return stored users |
+| `GET` | `/api/bookings/<user_id>` | Return a user's bookings |
+| `POST` | `/api/bookings` | Create and persist a booking |
+| `POST` | `/api/bookings/<booking_id>/cancel` | Cancel a booking while preserving its record |
+
+## Console
+
+The model console remains available for local storage work:
+
+```bash
+python3 console.py
+```
+
+The prompt is `(roper)` and supports the existing model commands, including
+`help`, `quit`, `show`, `all`, `count`, `create`, `update`, and `destroy`.
+
+## Release
+
+Version: `2.0.0`
+
+Author: **Alains11**
+
+Repository: [atelier-concept-website](https://github.com/Alains11/atelier-concept-website)

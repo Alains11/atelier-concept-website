@@ -8,7 +8,7 @@ from datetime import datetime
 import models
 
 class BaseModel:
-    """Custom base for all the classes in the AirBnb console project
+    """Custom base for all the classes in the Roper console project
 
     Arttributes:
         id(str): handles unique user identity
